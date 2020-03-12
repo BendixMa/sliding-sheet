@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:example/util/util.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import 'package:sliding_sheet/sliding_sheet.dart';
@@ -91,7 +90,7 @@ class _MyAppState extends State<MyApp> {
       elevation: 16,
       maxWidth: 500,
       padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top * interval(.7, 1.0, progress),
+        top: (MediaQuery.of(context).padding.top - 3) * interval(.7, 1.0, progress),
       ),
       cornerRadius: 16 * (1 - interval(0.7, 1.0, progress)),
       border: Border.all(
@@ -317,7 +316,7 @@ class _MyAppState extends State<MyApp> {
         divider,
         SizedBox(height: 32),
         Icon(
-          MdiIcons.githubCircle,
+          MdiIcons.github,
           color: Colors.grey.shade900,
           size: 48,
         ),
@@ -503,7 +502,7 @@ class _MyAppState extends State<MyApp> {
                   children: <Widget>[
                     Text(
                       'Header',
-                      style: textTheme.headline5,
+                      style: textTheme.headline,
                     ),
                     Stack(
                       children: <Widget>[
