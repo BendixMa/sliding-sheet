@@ -34,7 +34,7 @@ class SnapSpec {
   ///
   /// On a [SlidingSheet] this will correspond to the initial extent of the
   /// sheet. On a [SlidingSheetDialog] this will be the first extent that
-  /// the dialog will animate to.
+  /// the dialog is animating to.
   ///
   /// The value must be included in the [snappings] array, otherwise the sheet will
   /// animate immidiately to the next valid snap.
@@ -174,6 +174,10 @@ class ParallaxSpec {
   /// would be moved with half the speed of the [SlidingSheet].
   final double amount;
 
+
+  /// Fades out body as parallax goes on
+  final bool fadeBody;
+
   /// The parallax effect will be applied between [minExtent..endExtent] where the minExtent
   /// is defined by the lowest snap in the `snappings` array on the [SnapSpec].
   ///
@@ -186,20 +190,21 @@ class ParallaxSpec {
   const ParallaxSpec({
     this.enabled = true,
     this.amount = 0.15,
+    this.fadeBody = false,
     this.endExtent,
   })  : assert(enabled != null),
         assert(amount >= 0.0 && amount <= 1.0);
 
   @override
-  String toString() => 'ParallaxSpec(enabled: $enabled, amount: $amount, extent: $endExtent)';
+  String toString() => 'ParallaxSpec(enabled: $enabled, amount: $amount, extent: $endExtent, fadeBody: $fadeBody)';
 
   @override
   bool operator ==(Object o) {
     if (identical(this, o)) return true;
 
-    return o is ParallaxSpec && o.enabled == enabled && o.amount == amount && o.endExtent == endExtent;
+    return o is ParallaxSpec && o.enabled == enabled && o.amount == amount && o.endExtent == endExtent && o.fadeBody == fadeBody;
   }
 
   @override
-  int get hashCode => enabled.hashCode ^ amount.hashCode ^ endExtent.hashCode;
+  int get hashCode => enabled.hashCode ^ amount.hashCode ^ endExtent.hashCode ^ fadeBody.hashCode;
 }

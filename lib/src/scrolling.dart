@@ -105,9 +105,12 @@ class _SlidingSheetScrollController extends ScrollController {
 
     // Adjust the animation duration for a snap to give it a more
     // realistic feel.
-    final distanceFactor = ((currentExtent - snap).abs() / (maxExtent - minExtent)).clamp(0.33, 1.0);
+   // final distanceFactor = ((currentExtent - snap).abs() / (maxExtent - minExtent)).clamp(0.33, 1.0);
+    final distanceFactor = ((currentExtent - snap).abs() / (maxExtent - minExtent)).clamp(0.75, 1.0);
     final speedFactor = 1.0 - ((velocity.abs() / 2500) * 0.33).clamp(0.0, 0.66);
     duration ??= this.duration * (distanceFactor * speedFactor);
+    //duration *= 2.25;
+
 
     controller = AnimationController(duration: duration, vsync: vsync);
     final tween = Tween(begin: extent.currentExtent, end: snap).animate(
@@ -119,15 +122,16 @@ class _SlidingSheetScrollController extends ScrollController {
       ..whenComplete(() {
         controller.dispose();
 
-        // Needed because otherwise the scrollController
-        // thinks were still dragging.
-        jumpTo(offset);
+          // Needed because otherwise the scrollController
+          // thinks were still dragging.
+          jumpTo(offset);
 
-        // Invoke the snap callback.
-        snapSpec?.onSnap?.call(
-          sheet.state,
-          sheet._reverseSnap(snap),
-        );
+          // Invoke the snap callback.
+          snapSpec?.onSnap?.call(
+            sheet.state,
+            sheet._reverseSnap(snap),
+          );
+
       });
   }
 
@@ -316,7 +320,9 @@ class _SlidingSheetScrollPosition extends ScrollPositionWithSingleContext {
     velocity = velocity.abs();
     const flingThreshold = 1700;
 
-    void snapTo(double snap) => scrollController.snapToExtent(snap, context.vsync, velocity: velocity);
+    void snapTo(double snap) {
+      scrollController.snapToExtent(snap, context.vsync, velocity: velocity);
+    }
 
     if (velocity > flingThreshold) {
       if (!isMovingUp) {
