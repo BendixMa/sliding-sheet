@@ -359,6 +359,8 @@ class SlidingSheet extends StatefulWidget {
             'There must be at least two snapping extents to snap in between.'),
         assert(snapSpec.minSnap != snapSpec.maxSnap || route != null,
             'The min and max snaps cannot be equal.'),
+        assert(snapSpec.backdropSnap < snapSpec.snappings.length - 1,
+        'The initial backdrop snap should be less than the last snap.'),
         assert(isDismissable != null),
         assert(extendBody != null),
         assert(isBackdropInteractable != null),
@@ -431,6 +433,7 @@ class _SlidingSheetState extends State<SlidingSheet>
   ScrollSpec get scrollSpec => widget.scrollSpec;
   SnapSpec get snapSpec => widget.snapSpec;
   SnapPositioning get snapPositioning => snapSpec.positioning;
+  int get backdropSnap => snapSpec.backdropSnap;
 
   double get borderHeight => (widget.border?.top?.width ?? 0) * 2;
   EdgeInsets get padding {
@@ -488,6 +491,7 @@ class _SlidingSheetState extends State<SlidingSheet>
       controller,
       isDialog: isDialog,
       snappings: snappings,
+      backdropSnap: backdropSnap,
       listener: (extent) => _listener(),
     );
 
@@ -1053,9 +1057,10 @@ class _SlidingSheetState extends State<SlidingSheet>
             if (isDialog) {
               return (currentExtent / minExtent).clamp(0.0, 1.0);
             } else {
+              final baseline = backdropSnap == 0 ? minExtent : snappings[backdropSnap];
               final secondarySnap =
-                  snappings.length > 2 ? snappings[1] : maxExtent;
-              return ((currentExtent - minExtent) / (secondarySnap - minExtent))
+              snappings.length > 2 ? snappings[backdropSnap+1] : maxExtent;
+              return ((currentExtent - baseline) / (secondarySnap - baseline))
                   .clamp(0.0, 1.0);
             }
           } else {
