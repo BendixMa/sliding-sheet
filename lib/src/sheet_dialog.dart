@@ -76,6 +76,7 @@ Future<T> showSlidingBottomSheet<T>(
               cornerRadius: dialog.cornerRadius,
               cornerRadiusOnFullscreen: dialog.cornerRadiusOnFullscreen,
               closeOnBackdropTap: dialog.dismissOnBackdropTap,
+              closeOnBackdropTapDown: dialog.dismissOnBackdropTapDown,
               builder: dialog.builder,
               headerBuilder: dialog.headerBuilder,
               footerBuilder: dialog.footerBuilder,
@@ -165,6 +166,10 @@ class SlidingSheetDialog {
   /// was tapped.
   final bool dismissOnBackdropTap;
 
+  /// If true, the sheet will be collapsed when the backdrop
+  /// is hit.
+  final bool dismissOnBackdropTapDown;
+
   /// {@macro sliding_sheet.listener}
   final SheetListener listener;
 
@@ -219,6 +224,7 @@ class SlidingSheetDialog {
     this.cornerRadius = 0.0,
     this.cornerRadiusOnFullscreen,
     this.dismissOnBackdropTap = true,
+    this.dismissOnBackdropTapDown = false,
     this.listener,
     this.controller,
     this.scrollSpec = const ScrollSpec(overscroll: false),
