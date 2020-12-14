@@ -768,6 +768,9 @@ class _SlidingSheetState extends State<SlidingSheet>
       Navigator.pop(context);
       snapToExtent(0.0, velocity: velocity);
     } else if (!isDialog) {
+      if (state.isHidden || controller.animating) {
+        return;
+      }
       final fractionCovered =
           ((currentExtent - minExtent) / (maxExtent - minExtent))
               .clamp(0.0, 1.0);
@@ -1065,9 +1068,11 @@ class _SlidingSheetState extends State<SlidingSheet>
             if (isDialog) {
               return (currentExtent / minExtent).clamp(0.0, 1.0);
             } else {
-              final baseline = backdropSnap == 0 ? minExtent : snappings[backdropSnap];
-              final secondarySnap =
-              snappings.length > 2 ? snappings[backdropSnap+1] : maxExtent;
+              final baseline =
+                  backdropSnap == 0 ? minExtent : snappings[backdropSnap];
+              final secondarySnap = snappings.length > 2
+                  ? snappings[backdropSnap + 1]
+                  : maxExtent;
               return ((currentExtent - baseline) / (secondarySnap - baseline))
                   .clamp(0.0, 1.0);
             }
@@ -1093,7 +1098,9 @@ class _SlidingSheetState extends State<SlidingSheet>
             : _onDismissPrevented(backDrop: true);
 
         // see: https://github.com/BendixMa/sliding-sheet/issues/30
-        if (opacity >= 0.05 || didStartDragWhenNotCollapsed || widget.closeOnBackdropTapDown) {
+        if (opacity >= 0.05 ||
+            didStartDragWhenNotCollapsed ||
+            widget.closeOnBackdropTapDown) {
           if (widget.isBackdropInteractable) {
             return _delegateInteractions(backDrop,
                 onTap: widget.closeOnBackdropTap ? onTap : null);
