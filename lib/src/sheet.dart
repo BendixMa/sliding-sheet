@@ -370,7 +370,7 @@ class SlidingSheet extends StatefulWidget {
         assert(isDismissable != null),
         assert(extendBody != null),
         assert(isBackdropInteractable != null),
-        assert(closeOnBackdropTap != true || closeOnBackdropTapDown != true,
+        assert(closeOnBackdropTap == false || closeOnBackdropTapDown == false,
             'Choose either Tap or Hit for backdrop close behavior.'),
         assert(axisAlignment != null &&
             (axisAlignment >= -1.0 && axisAlignment <= 1.0)),
