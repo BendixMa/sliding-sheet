@@ -118,6 +118,9 @@ class SlidingSheet extends StatefulWidget {
   /// If true, will collapse the sheet when the sheets backdrop was tapped.
   final bool closeOnBackdropTap;
 
+  /// If true, will collapse the sheet when the sheets backdrop was hit.
+  final bool closeOnBackdropTapDown;
+
   /// {@template sliding_sheet.listener}
   /// A callback that will be invoked when the sheet gets dragged or scrolled
   /// with current state information.
@@ -272,6 +275,7 @@ class SlidingSheet extends StatefulWidget {
     double cornerRadius = 0.0,
     double cornerRadiusOnFullscreen,
     bool closeOnBackdropTap = false,
+    bool closeOnBackdropTapDown = false,
     SheetListener listener,
     SheetController controller,
     ScrollSpec scrollSpec = const ScrollSpec(overscroll: false),
@@ -303,6 +307,7 @@ class SlidingSheet extends StatefulWidget {
           cornerRadius: cornerRadius,
           cornerRadiusOnFullscreen: cornerRadiusOnFullscreen,
           closeOnBackdropTap: closeOnBackdropTap,
+          closeOnBackdropTapDown: closeOnBackdropTapDown,
           listener: listener,
           controller: controller,
           scrollSpec: scrollSpec,
@@ -336,6 +341,7 @@ class SlidingSheet extends StatefulWidget {
     @required this.cornerRadius,
     @required this.cornerRadiusOnFullscreen,
     @required this.closeOnBackdropTap,
+    @required this.closeOnBackdropTapDown,
     @required this.listener,
     @required this.controller,
     @required this.scrollSpec,
@@ -359,9 +365,13 @@ class SlidingSheet extends StatefulWidget {
             'There must be at least two snapping extents to snap in between.'),
         assert(snapSpec.minSnap != snapSpec.maxSnap || route != null,
             'The min and max snaps cannot be equal.'),
+        assert(snapSpec.backdropSnap < snapSpec.snappings.length - 1,
+            'The initial backdrop snap should be less than the last snap.'),
         assert(isDismissable != null),
         assert(extendBody != null),
         assert(isBackdropInteractable != null),
+        assert(closeOnBackdropTap == false || closeOnBackdropTapDown == false,
+            'Choose either Tap or Hit for backdrop close behavior.'),
         assert(axisAlignment != null &&
             (axisAlignment >= -1.0 && axisAlignment <= 1.0)),
         assert(liftOnScrollHeaderElevation >= 0.0),
@@ -431,6 +441,7 @@ class _SlidingSheetState extends State<SlidingSheet>
   ScrollSpec get scrollSpec => widget.scrollSpec;
   SnapSpec get snapSpec => widget.snapSpec;
   SnapPositioning get snapPositioning => snapSpec.positioning;
+  int get backdropSnap => snapSpec.backdropSnap;
 
   double get borderHeight => (widget.border?.top?.width ?? 0) * 2;
   EdgeInsets get padding {
@@ -488,6 +499,7 @@ class _SlidingSheetState extends State<SlidingSheet>
       controller,
       isDialog: isDialog,
       snappings: snappings,
+      backdropSnap: backdropSnap,
       listener: (extent) => _listener(),
     );
 
@@ -756,6 +768,9 @@ class _SlidingSheetState extends State<SlidingSheet>
       Navigator.pop(context);
       snapToExtent(0.0, velocity: velocity);
     } else if (!isDialog) {
+      if (state.isHidden || controller.animating) {
+        return;
+      }
       final fractionCovered =
           ((currentExtent - minExtent) / (maxExtent - minExtent))
               .clamp(0.0, 1.0);
@@ -1053,9 +1068,12 @@ class _SlidingSheetState extends State<SlidingSheet>
             if (isDialog) {
               return (currentExtent / minExtent).clamp(0.0, 1.0);
             } else {
-              final secondarySnap =
-                  snappings.length > 2 ? snappings[1] : maxExtent;
-              return ((currentExtent - minExtent) / (secondarySnap - minExtent))
+              final baseline =
+                  backdropSnap == 0 ? minExtent : snappings[backdropSnap];
+              final secondarySnap = snappings.length > 2
+                  ? snappings[backdropSnap + 1]
+                  : maxExtent;
+              return ((currentExtent - baseline) / (secondarySnap - baseline))
                   .clamp(0.0, 1.0);
             }
           } else {
@@ -1080,13 +1098,21 @@ class _SlidingSheetState extends State<SlidingSheet>
             : _onDismissPrevented(backDrop: true);
 
         // see: https://github.com/BendixMa/sliding-sheet/issues/30
-        if (opacity >= 0.05 || didStartDragWhenNotCollapsed) {
+        if (opacity >= 0.05 ||
+            didStartDragWhenNotCollapsed ||
+            widget.closeOnBackdropTapDown) {
           if (widget.isBackdropInteractable) {
             return _delegateInteractions(backDrop,
                 onTap: widget.closeOnBackdropTap ? onTap : null);
           } else if (widget.closeOnBackdropTap) {
             return GestureDetector(
               onTap: onTap,
+              behavior: HitTestBehavior.translucent,
+              child: backDrop,
+            );
+          } else if (widget.closeOnBackdropTapDown) {
+            return Listener(
+              onPointerDown: (_) => onTap(),
               behavior: HitTestBehavior.translucent,
               child: backDrop,
             );

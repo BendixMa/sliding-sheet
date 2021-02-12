@@ -57,6 +57,12 @@ class SnapSpec {
   /// A callback function that gets called when the [SlidingSheet] snaps to an extent.
   final void Function(SheetState, double snap) onSnap;
 
+  /// The snap at which the backdrop should remain invisible.
+  ///
+  /// When the [SlidingSheet] is snapped to this index, the backdrop will be
+  /// clear and the user can continue to interact with the body.
+  final int backdropSnap;
+
   /// Creates an object that defines how a [SlidingSheet] should snap, or if it should at all.
   const SnapSpec({
     this.snap = true,
@@ -64,6 +70,7 @@ class SnapSpec {
     this.initialSnap,
     this.positioning = SnapPositioning.relativeToAvailableSpace,
     this.onSnap,
+    this.backdropSnap = 0,
   })  : assert(snap != null),
         assert(snappings != null),
         assert(positioning != null);

@@ -4,6 +4,7 @@ class _SheetExtent {
   final bool isDialog;
   final _SlidingSheetScrollController controller;
   List<double> snappings;
+  int backdropSnap;
   double targetHeight = 0;
   double childHeight = 0;
   double headerHeight = 0;
@@ -13,6 +14,7 @@ class _SheetExtent {
     this.controller, {
     @required this.isDialog,
     @required this.snappings,
+    @required this.backdropSnap,
     @required void Function(double) listener,
   }) {
     maxExtent = snappings.last.clamp(0.0, 1.0);
